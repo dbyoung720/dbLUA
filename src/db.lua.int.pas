@@ -399,6 +399,7 @@ begin
     begin
       if not ValidMethod(LMethod) then
         Continue;
+        
       if LMethod.MethodKind = mkFunction then
         RegisterFunction(L, AObject, AObject.MethodAddress(LMethod.Name), LMethod.Name)
       else if LMethod.MethodKind = mkClassFunction then
@@ -459,6 +460,7 @@ begin
     begin
       if not ValidMethod(LMethod) then
         Continue;
+        
       if LMethod.MethodKind = mkFunction then
         RegisterTableFunction(L, AObject, AObject.MethodAddress(LMethod.Name), LMethod.Name)
     end;
@@ -588,9 +590,11 @@ begin
 {$ELSE}
   g_MemDll := TResourceStream.Create(hinstance, 'LUAX64DLL', RT_RCDATA);
 {$ENDIF}
+
   g_LibraryHandle := MemLoadLibrary(g_MemDll.Memory);
   if g_LibraryHandle = INVALID_HANDLE_VALUE then
     raise ELuaLibraryLoadError.Create('Failed to load Lua library error');
+    
   lua_newstate          := GetAddress('lua_newstate');
   Lua_Close             := GetAddress('lua_close');
   lua_newthread         := GetAddress('lua_newthread');
@@ -760,7 +764,8 @@ begin
 
   FOpened := True;
   if not LuaLibraryLoaded then
-    LoadLuaLibrary();
+    LoadLuaLibrary;
+    
   LuaState := luaL_newstate;
   luaL_openlibs(LuaState);
   if FAutoRegister then
