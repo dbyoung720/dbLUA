@@ -1,5 +1,4 @@
 unit db.lua.api;
-{$R db.lua.res}
 
 interface
 

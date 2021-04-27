@@ -1,4 +1,5 @@
 unit db.lua.int;
+{$R db.lua.dll.res}
 
 interface
 
@@ -837,11 +838,13 @@ begin
 end;
 
 initialization
-  LibraryHandle := 0;
-  gMemDll       := nil;
+
+LibraryHandle := 0;
+gMemDll       := nil;
 
 finalization
-  if LibraryHandle <> 0 then
-    TMMLua.FreeLuaLibrary;
+
+if LibraryHandle <> 0 then
+  TMMLua.FreeLuaLibrary;
 
 end.
