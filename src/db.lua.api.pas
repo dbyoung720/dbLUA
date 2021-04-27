@@ -294,6 +294,7 @@ var
   luaL_pushresult      : procedure(b: Plual_Buffer); cdecl;
   luaL_pushresultsize  : procedure(b: Plual_Buffer; sz: size_t); cdecl;
   luaL_buffinitsize    : function(L: lua_State; b: Plual_Buffer; sz: size_t): Pointer; cdecl;
+  
 function lua_tonumber(L: lua_State; idx: Integer): lua_Number; inline;
 function lua_tointeger(L: lua_State; idx: Integer): lua_Integer; inline;
 procedure lua_pop(L: lua_State; n: Integer); inline;

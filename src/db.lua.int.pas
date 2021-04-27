@@ -102,8 +102,8 @@ type
   end;
 
 var
-  LibraryHandle: HMODULE;
-  gMemDll      : TResourceStream;
+  g_LibraryHandle: HMODULE         = 0;
+  g_MemDll       : TResourceStream = nil;
 
 function MsgHandler(L: Lua_State): Integer; cdecl;
 var
@@ -565,7 +565,7 @@ end;
 
 function GetAddress(Name: String): Pointer;
 begin
-  Result := MemGetProcAddress(LibraryHandle, PAnsiChar(AnsiString(Name)));
+  Result := MemGetProcAddress(g_LibraryHandle, PAnsiChar(AnsiString(Name)));
   if not Assigned(Result) then
     raise ELuaLibraryMethodNotFound.Create('Entry point "' + QuotedStr(Name) + '" not found');
 end;
@@ -584,12 +584,12 @@ begin
   FreeLuaLibrary;
 
 {$IFDEF CPUX86}
-  gMemDll := TResourceStream.Create(hinstance, 'LUAX86DLL', RT_RCDATA);
+  g_MemDll := TResourceStream.Create(hinstance, 'LUAX86DLL', RT_RCDATA);
 {$ELSE}
-  gMemDll := TResourceStream.Create(hinstance, 'LUAX64DLL', RT_RCDATA);
+  g_MemDll := TResourceStream.Create(hinstance, 'LUAX64DLL', RT_RCDATA);
 {$ENDIF}
-  LibraryHandle := MemLoadLibrary(gMemDll.Memory);
-  if LibraryHandle = INVALID_HANDLE_VALUE then
+  g_LibraryHandle := MemLoadLibrary(g_MemDll.Memory);
+  if g_LibraryHandle = INVALID_HANDLE_VALUE then
     raise ELuaLibraryLoadError.Create('Failed to load Lua library error');
   lua_newstate          := GetAddress('lua_newstate');
   Lua_Close             := GetAddress('lua_close');
@@ -750,7 +750,7 @@ end;
 
 class function TMMLua.LuaLibraryLoaded: boolean;
 begin
-  Result := (LibraryHandle <> 0);
+  Result := (g_LibraryHandle <> 0);
 end;
 
 procedure TMMLua.Open;
@@ -769,12 +769,12 @@ end;
 
 class procedure TMMLua.FreeLuaLibrary;
 begin
-  if LibraryHandle <> 0 then
+  if g_LibraryHandle <> 0 then
   begin
-    MemFreeLibrary(LibraryHandle);
-    LibraryHandle := 0;
-    gMemDll.Free;
-    gMemDll := nil;
+    MemFreeLibrary(g_LibraryHandle);
+    g_LibraryHandle := 0;
+    g_MemDll.Free;
+    g_MemDll := nil;
   end;
 end;
 
@@ -838,11 +838,9 @@ begin
 end;
 
 initialization
-  LibraryHandle := 0;
-  gMemDll       := nil;
 
 finalization
-  if LibraryHandle <> 0 then
+  if g_LibraryHandle <> 0 then
     TMMLua.FreeLuaLibrary;
 
 end.
